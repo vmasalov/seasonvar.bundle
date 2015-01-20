@@ -1,8 +1,5 @@
 import json
 
-Locale.LocalString('ru')
-
-
 API_URL = "http://api.seasonvar.ru/"
 PREFIX = "/video/seasonvarserials"
 
