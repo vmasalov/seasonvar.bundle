@@ -1,0 +1,23 @@
+{
+    "Title": "Seasonvar.RU",
+    "ListSerials": "List Serials",
+    "LatestSerials": "Latest Serials",
+    "SeasonTitle": "Season",
+    "ABCSelect_EN": "English",
+    "ABCSelect_RU": "Russian",
+    "MissingAPIKeyTitle": "Error",
+    "MissingAPIKeyMessage": "Missing API Key. Open Settings and input a valid key. Next goto website and activate your key.",
+    "Search": "Search",
+    "SearchPrompt": "Search for the serial?",
+    "EmptyResultTitle": "Empty result",
+    "EmptyResultMessage": "Nothing has been found. Please try again",
+    "AddBookmarkTitle": "Add to bookmark list.",
+    "AddBookmarkMessage": " can be added to you bookmarks to make it easier to find later.",
+    "BookmarkList": "Bookmark List",
+    "BookmarkListAddedMessage": "This show has been added to your bookmarks",
+    "BookmarkListClearTitle": "Clear ALL",
+    "BookmarkListClearMessage": "CAUTION! This will clear your entire bookmark list!",
+    "BookmarkListClearedMessage": "Your bookmark list has been cleared.",
+    "UnauthorizedTitle": "Access Denied",
+    "UnauthorizedMessage": "Unauthorized user"
+}

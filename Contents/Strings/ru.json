@@ -1,0 +1,23 @@
+{
+    "Title": "Сериалы от Seasonvar.RU",
+    "ListSerials": "Список сериалов",
+    "LatestSerials": "Последние сериалы",
+    "SeasonTitle": "Сезон",
+    "ABCSelect_EN": "Английский",
+    "ABCSelect_RU": "Русский",
+    "MissingAPIKeyTitle": "Ошибка",
+    "MissingAPIKeyMessage": "Отсутствует API Key. Зайдите в настройки и введите ключ. После чего нужно активировать ваш IP на сайте Seasonvar",
+    "Search": "Поиск",
+    "SearchPrompt": "Ищите сериал?",
+    "EmptyResultTitle": "Пустой результат",
+    "EmptyResultMessage": "Ничего не найдено, пожалуйста повторите"
+    "AddBookmarkTitle": "Добавить в закладки",
+    "AddBookmarkMessage": " может быть добавлен в закладки для удобного поиска",
+    "BookmarkList": "Список закладок",
+    "BookmarkListAddedMessage": "Сериал был добавлен в закладки",
+    "BookmarkListClearTitle": "Удалить ВСЕ",
+    "BookmarkListClearMessage": "Внимание! Будут удалены все закладки",
+    "BookmarkListClearedMessage": "Ваши закладки были удалены",
+    "UnauthorizedTitle": "Доступ запрещен",
+    "UnauthorizedMessage": "Неавторизированный пользователь"
+}
