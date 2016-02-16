@@ -18,6 +18,7 @@
     "BookmarkListClearTitle": "Удалить ВСЕ",
     "BookmarkListClearMessage": "Внимание! Будут удалены все закладки",
     "BookmarkListClearedMessage": "Ваши закладки были удалены",
+    "BookmarkListEmptyMessage": "У вас нет сохраненных закладок",
     "UnauthorizedTitle": "Доступ запрещен",
     "UnauthorizedMessage": "Неавторизированный пользователь"
 }

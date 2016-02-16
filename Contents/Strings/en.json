@@ -18,6 +18,7 @@
     "BookmarkListClearTitle": "Clear ALL",
     "BookmarkListClearMessage": "CAUTION! This will clear your entire bookmark list!",
     "BookmarkListClearedMessage": "Your bookmark list has been cleared.",
+    "BookmarkListEmptyMessage": "You don't have saved bookmarks",
     "UnauthorizedTitle": "Access Denied",
     "UnauthorizedMessage": "Unauthorized user"
 }
