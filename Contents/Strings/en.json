@@ -22,5 +22,6 @@
     "UnauthorizedTitle": "Access Denied",
     "UnauthorizedMessage": "Unauthorized user",
     "IpBlockedTitle": "Access Denied",
-    "IpBlockedMessage": "Your IP is not active. Open seasonvar.ru website and activate IP for your account."
+    "IpBlockedMessage": "Your IP is not active. Open seasonvar.ru website and activate IP for your account.",
+    "Translation": "Translation: "
 }

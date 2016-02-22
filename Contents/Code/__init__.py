@@ -13,6 +13,7 @@ SEARCH = L('Search')
 SEARCH_PROMPT = L('SearchPrompt')
 EMPTY_RESULT_TITLE = L('EmptyResultTitle')
 EMPTY_RESULT_MESSAGE = L('EmptyResultMessage')
+TRANSLATION = L('Translation')
 
 ADD_BOOKMARK_TITLE = L('AddBookmarkTitle')
 ADD_BOOKMARK_MESSAGE = L('AddBookmarkMessage')
@@ -322,31 +323,48 @@ def get_season_by_id(id):
 
         if is_authorized(response):
             if is_ip_valid(response):
-                MediaContainer.art = Resource.ContentsOfURLWithFallback(url=response.get('poster'), fallback=ART)
-
-                oc = ObjectContainer(title2=response.get('name'))
-
                 playlist = response.get('playlist')
+
+                # form new dictionary based on the translation
+                translations = {}
                 for video in playlist:
-                    video_name = video.get('name')
-                    video_link = video.get('link')
-                    oc.add(create_eo(
-                        url=video_link,
-                        title=video_name,
-                        summary=response.get('description'),
-                        rating=averageRating(response.get('rating')),
-                        thumb=response.get('poster_small')
-                    ))
 
-                oc.add(DirectoryObject(
-                    key=Callback(add_bookmark, title=response.get('name'), id=response.get('id'), thumb=response.get('poster'), summary=response.get('description')),
-                    title=ADD_BOOKMARK_TITLE,
-                    summary=response.get('name')+ADD_BOOKMARK_MESSAGE,
-                    thumb=R(ICON_ADD_BOOKMARK)
-                    )
-                )
+                    # check if there are > 1 translation
+                    if 'perevod' in video:
+                        key = video.get('perevod')
+                    else:
+                        key = '__default__'
 
-                return oc
+                    if key not in translations:
+                        translations[key] = []
+
+                    translations[key].append({
+                        "name": video.get('name'),
+                        "link": video.get('link')
+                    })
+
+                # Store current response into global Dict
+                Dict['cache'] = {
+                    'id': response.get('id'),
+                    'name': response.get('name'),
+                    'poster': response.get('poster'),
+                    'poster_small': response.get('poster_small'),
+                    'description': response.get('description'),
+                    'rating': response.get('rating'),
+                    'playlist': translations
+                }
+                Dict.Save()
+
+                if '__default__' in translations:
+                    return display_season(id='__default__')
+                else:
+                    # render translations
+                    MediaContainer.art = Resource.ContentsOfURLWithFallback(url=response.get('poster'), fallback=ART)
+                    oc = ObjectContainer(title2=response.get('name'))
+
+                    for key in translations:
+                        oc.add(DirectoryObject(key=Callback(display_season, id=key), title=TRANSLATION+key))
+                    return oc
             else:
                 return display_ip_blocked_message()
         else:
@@ -354,6 +372,38 @@ def get_season_by_id(id):
     else:
         return display_missing_key_message()
 
+@route(PREFIX + "/display_season")
+def display_season(id):
+    response = Dict['cache']
+    MediaContainer.art = Resource.ContentsOfURLWithFallback(url=response.get('poster'), fallback=ART)
+
+    title = response.get('name')
+    if id != '__default__':
+        title += ' [' + id + ']'
+
+    oc = ObjectContainer(title2=title)
+
+    playlist = response.get('playlist').get(id)
+    for video in playlist:
+        video_link = video.get('link')
+        video_name = video.get('name')
+
+        oc.add(create_eo(
+            url=video_link,
+            title=video_name,
+            summary=response.get('description'),
+            rating=averageRating(response.get('rating')),
+            thumb=response.get('poster_small')
+        ))
+
+    oc.add(DirectoryObject(
+        key=Callback(add_bookmark, title=response.get('name'), id=response.get('id'), thumb=response.get('poster'), summary=response.get('description')),
+        title=ADD_BOOKMARK_TITLE,
+        summary=response.get('name')+ADD_BOOKMARK_MESSAGE,
+        thumb=R(ICON_ADD_BOOKMARK)
+    ))
+
+    return oc
 
 @route(PREFIX + "/create_eo")
 def create_eo(url, title, summary, rating, thumb, include_container=False):
