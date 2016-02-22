@@ -22,6 +22,7 @@ BOOKMARK_ADDED_MESSAGE = L('BookmarkListAddedMessage')
 BOOKMARK_CLEAR_TITLE = L('BookmarkListClearTitle')
 BOOKMARK_CLEAR_MESSAGE = L('BookmarkListClearMessage')
 BOOKMARK_CLEARED_MESSAGE = L('BookmarkListClearedMessage')
+BOOKMARK_EMPTY_MESSAGE = L('BookmarkListEmptyMessage')
 
 CLEAR_BOOKMARK = L('ClearBookmark')
 
@@ -392,34 +393,43 @@ def create_eo(url, title, summary, rating, thumb, include_container=False):
 def bookmarks(title):
     oc = ObjectContainer(title1=title)
 
-    for show_id in Dict:
-        show = Dict[show_id]
-        show_title = unicode(show.get('title'), 'UTF-8')
-        oc.add(
-            TVShowObject(
-                rating_key=show_title,
-                key=Callback(get_season_by_id, id=show_id),
-                title=show_title,
-                summary=unicode(show.get('summary'), 'UTF-8'),
-                thumb=Resource.ContentsOfURLWithFallback(url=show.get('thumb'))
+    if 'bookmarks' in Dict:
+        for show_id in Dict['bookmarks']:
+            show = Dict['bookmarks'][show_id]
+            show_title = unicode(show.get('title'), 'UTF-8')
+            oc.add(
+                TVShowObject(
+                    rating_key=show_title,
+                    key=Callback(get_season_by_id, id=show_id),
+                    title=show_title,
+                    summary=unicode(show.get('summary'), 'UTF-8'),
+                    thumb=Resource.ContentsOfURLWithFallback(url=show.get('thumb'))
+                )
+            )
+
+        # add a way to clear bookmarks list
+        oc.add(DirectoryObject(
+            key=Callback(clear_bookmarks),
+            title=BOOKMARK_CLEAR_TITLE,
+            thumb=R(ICON_BOOKMARKS_CLEAR),
+            summary=BOOKMARK_CLEAR_MESSAGE
             )
         )
 
-    # add a way to clear bookmarks list
-    oc.add(DirectoryObject(
-        key=Callback(clear_bookmarks),
-        title=BOOKMARK_CLEAR_TITLE,
-        thumb=R(ICON_BOOKMARKS_CLEAR),
-        summary=BOOKMARK_CLEAR_MESSAGE
+        return oc
+    else:
+        return MessageContainer(
+            BOOKMARK,
+            BOOKMARK_EMPTY_MESSAGE
         )
-    )
-
-    return oc
-
-
 @route(PREFIX + "/addbookmark")
 def add_bookmark(title, id, thumb, summary):
-    Dict[id] = dict(title=title, thumb=thumb, summary=summary)
+
+    # initiate new dictionary for bookmarks
+    if 'bookmarks' not in Dict:
+        Dict['bookmarks'] = {}
+
+    Dict['bookmarks'][id] = dict(title=title, thumb=thumb, summary=summary)
     Dict.Save()
 
     return MessageContainer(
@@ -427,10 +437,16 @@ def add_bookmark(title, id, thumb, summary):
         BOOKMARK_ADDED_MESSAGE
     )
 
-
+# There is a bug in Dict.Reset() function;
+# So, delete internal 'bookmarks' dictionary
 @route(PREFIX + "/clearbookmarks")
 def clear_bookmarks():
-    Dict.Reset()
+    try:
+        del Dict['bookmarks']
+        Dict.Save()
+    except KeyError:
+        pass
+
     return MessageContainer(
         BOOKMARK,
         BOOKMARK_CLEARED_MESSAGE
