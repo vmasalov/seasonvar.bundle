@@ -29,6 +29,8 @@ MISSING_API_KEY_TITLE = L('MissingAPIKeyTitle')
 MISSING_API_KEY_MESSAGE = L('MissingAPIKeyMessage')
 UNAUTHORIZED_TITLE = L('UnauthorizedTitle')
 UNAUTHORIZED_MESSAGE = L('UnauthorizedMessage')
+IP_BLOCKED_TITLE = L('IpBlockedTitle')
+IP_BLOCKED_MESSAGE = L('IpBlockedMessage')
 
 ART = 'art-default.jpg'
 
@@ -93,18 +95,21 @@ def search(query):
         response = json.loads(request.content)
 
         if is_authorized(response):
-            for season in response:
-                name = season.get('name')+', S'+season.get('season')[0]
-                oc.add(
-                    TVShowObject(
-                        rating_key=name,
-                        key=Callback(get_season_by_id, id=season.get('id')),
-                        title=name,
-                        summary=season.get('description'),
-                        thumb=Resource.ContentsOfURLWithFallback(url=season.get('poster_small'), fallback=ICON_COVER)
+            if is_ip_valid(response):
+                for season in response:
+                    name = season.get('name')+', S'+season.get('season')[0]
+                    oc.add(
+                        TVShowObject(
+                            rating_key=name,
+                            key=Callback(get_season_by_id, id=season.get('id')),
+                            title=name,
+                            summary=season.get('description'),
+                            thumb=Resource.ContentsOfURLWithFallback(url=season.get('poster_small'), fallback=ICON_COVER)
+                        )
                     )
-                )
-            return oc
+                return oc
+            else:
+                return display_ip_blocked_message()
         else:
             return display_unauthorized_message()
     else:
@@ -130,31 +135,34 @@ def latest(title):
         response = json.loads(request.content)
 
         if is_authorized(response):
-            oc = ObjectContainer(title1=unicode(title, 'UTF-8'))
+            if is_ip_valid(response):
+                oc = ObjectContainer(title1=unicode(title, 'UTF-8'))
 
-            if isinstance(response, dict) and 'error' in response.values():
-                return MessageContainer(
-                    EMPTY_RESULT_TITLE,
-                    EMPTY_RESULT_MESSAGE
-                )
-            else:
-                for serial in response:
-                    serial_id = serial.get('id')
-                    serial_title = serial.get('name')
-                    serial_thumb = serial.get('poster_small')
-                    serial_summary = serial.get('message')
-
-                    oc.add(
-                        TVShowObject(
-                            rating_key=serial_title,
-                            key=Callback(get_season_by_id, id=serial_id),
-                            title=serial_title,
-                            summary=serial_summary,
-                            thumb=Resource.ContentsOfURLWithFallback(url=serial_thumb)
-                        )
+                if isinstance(response, dict) and 'error' in response.values():
+                    return MessageContainer(
+                        EMPTY_RESULT_TITLE,
+                        EMPTY_RESULT_MESSAGE
                     )
+                else:
+                    for serial in response:
+                        serial_id = serial.get('id')
+                        serial_title = serial.get('name')
+                        serial_thumb = serial.get('poster_small')
+                        serial_summary = serial.get('message')
 
-                return oc
+                        oc.add(
+                            TVShowObject(
+                                rating_key=serial_title,
+                                key=Callback(get_season_by_id, id=serial_id),
+                                title=serial_title,
+                                summary=serial_summary,
+                                thumb=Resource.ContentsOfURLWithFallback(url=serial_thumb)
+                            )
+                        )
+
+                    return oc
+            else:
+                return display_ip_blocked_message()
         else:
             return display_unauthorized_message()
     else:
@@ -209,45 +217,48 @@ def get_serial_list_by_title(title):
         response = json.loads(request.content)
 
         if is_authorized(response):
-            oc = ObjectContainer(title1=unicode(title, 'UTF-8'))
+            if is_ip_valid(response):
+                oc = ObjectContainer(title1=unicode(title, 'UTF-8'))
 
-            if isinstance(response, dict) and 'error' in response.values():
-                return MessageContainer(
-                    EMPTY_RESULT_TITLE,
-                    EMPTY_RESULT_MESSAGE
-                )
+                if isinstance(response, dict) and 'error' in response.values():
+                    return MessageContainer(
+                        EMPTY_RESULT_TITLE,
+                        EMPTY_RESULT_MESSAGE
+                    )
+                else:
+                    for serial in response:
+                        total = serial.get('count_of_seasons')
+                        serial_title = serial.get('name')
+                        serial_thumb = serial.get('poster_small')
+                        serial_summary = serial.get('description')
+                        serial_country = serial.get('country')
+
+                        if total:
+                            oc.add(
+                                TVShowObject(
+                                    rating_key=serial_title,
+                                    key=Callback(get_season_list_by_title, title=serial_title),
+                                    title=serial_title,
+                                    summary=serial_summary,
+                                    countries=[serial_country],
+                                    thumb=Resource.ContentsOfURLWithFallback(url=serial_thumb)
+                                )
+                            )
+                        else:
+                            # there are no seasons
+                            oc.add(
+                                SeasonObject(
+                                    rating_key=serial_title,
+                                    key=Callback(get_season_by_id, id=serial.get('last_season_id')),
+                                    title=serial_title,
+                                    index=int(1),
+                                    summary=serial_summary,
+                                    thumb=Resource.ContentsOfURLWithFallback(url=serial_thumb)
+                                )
+                            )
+                    return oc
             else:
-                for serial in response:
-                    total = serial.get('count_of_seasons')
-                    serial_title = serial.get('name')
-                    serial_thumb = serial.get('poster_small')
-                    serial_summary = serial.get('description')
-                    serial_country = serial.get('country')
-
-                    if total:
-                        oc.add(
-                            TVShowObject(
-                                rating_key=serial_title,
-                                key=Callback(get_season_list_by_title, title=serial_title),
-                                title=serial_title,
-                                summary=serial_summary,
-                                countries=[serial_country],
-                                thumb=Resource.ContentsOfURLWithFallback(url=serial_thumb)
-                            )
-                        )
-                    else:
-                        # there are no seasons
-                        oc.add(
-                            SeasonObject(
-                                rating_key=serial_title,
-                                key=Callback(get_season_by_id, id=serial.get('last_season_id')),
-                                title=serial_title,
-                                index=int(1),
-                                summary=serial_summary,
-                                thumb=Resource.ContentsOfURLWithFallback(url=serial_thumb)
-                            )
-                        )
-                return oc
+                return display_ip_blocked_message()
         else:
             return display_unauthorized_message()
     else:
@@ -267,26 +278,29 @@ def get_season_list_by_title(title):
         response = json.loads(request.content)
 
         if is_authorized(response):
-            oc = ObjectContainer(title2=unicode(title, 'UTF-8'))
+            if is_ip_valid(response):
+                oc = ObjectContainer(title2=unicode(title, 'UTF-8'))
 
-            if isinstance(response, dict) and 'error' in response.values():
-                return MessageContainer(
-                    EMPTY_RESULT_TITLE,
-                    EMPTY_RESULT_MESSAGE
-                )
+                if isinstance(response, dict) and 'error' in response.values():
+                    return MessageContainer(
+                        EMPTY_RESULT_TITLE,
+                        EMPTY_RESULT_MESSAGE
+                    )
+                else:
+                    for season in response:
+                        season_id = season.get('id')
+                        season_number = season.get('season_number')
+                        oc.add(SeasonObject(
+                            rating_key=title+season_number,
+                            key=Callback(get_season_by_id, id=season_id),
+                            title=SEASON_TITLE+' '+season_number,
+                            index=int(season_number),
+                            summary=season.get('description'),
+                            thumb=Resource.ContentsOfURLWithFallback(url=season.get('poster_small'), fallback=ICON_COVER)
+                        ))
+                    return oc
             else:
-                for season in response:
-                    season_id = season.get('id')
-                    season_number = season.get('season_number')
-                    oc.add(SeasonObject(
-                        rating_key=title+season_number,
-                        key=Callback(get_season_by_id, id=season_id),
-                        title=SEASON_TITLE+' '+season_number,
-                        index=int(season_number),
-                        summary=season.get('description'),
-                        thumb=Resource.ContentsOfURLWithFallback(url=season.get('poster_small'), fallback=ICON_COVER)
-                    ))
-                return oc
+                return display_ip_blocked_message()
         else:
             return display_unauthorized_message()
     else:
@@ -306,31 +320,34 @@ def get_season_by_id(id):
         response = json.loads(request.content)
 
         if is_authorized(response):
-            MediaContainer.art = Resource.ContentsOfURLWithFallback(url=response.get('poster'), fallback=ART)
+            if is_ip_valid(response):
+                MediaContainer.art = Resource.ContentsOfURLWithFallback(url=response.get('poster'), fallback=ART)
 
-            oc = ObjectContainer(title2=response.get('name'))
+                oc = ObjectContainer(title2=response.get('name'))
 
-            playlist = response.get('playlist')
-            for video in playlist:
-                video_name = video.get('name')
-                video_link = video.get('link')
-                oc.add(create_eo(
-                    url=video_link,
-                    title=video_name,
-                    summary=response.get('description'),
-                    rating=averageRating(response.get('rating')),
-                    thumb=response.get('poster_small')
-                ))
+                playlist = response.get('playlist')
+                for video in playlist:
+                    video_name = video.get('name')
+                    video_link = video.get('link')
+                    oc.add(create_eo(
+                        url=video_link,
+                        title=video_name,
+                        summary=response.get('description'),
+                        rating=averageRating(response.get('rating')),
+                        thumb=response.get('poster_small')
+                    ))
 
-            oc.add(DirectoryObject(
-                key=Callback(add_bookmark, title=response.get('name'), id=response.get('id'), thumb=response.get('poster'), summary=response.get('description')),
-                title=ADD_BOOKMARK_TITLE,
-                summary=response.get('name')+ADD_BOOKMARK_MESSAGE,
-                thumb=R(ICON_ADD_BOOKMARK)
+                oc.add(DirectoryObject(
+                    key=Callback(add_bookmark, title=response.get('name'), id=response.get('id'), thumb=response.get('poster'), summary=response.get('description')),
+                    title=ADD_BOOKMARK_TITLE,
+                    summary=response.get('name')+ADD_BOOKMARK_MESSAGE,
+                    thumb=R(ICON_ADD_BOOKMARK)
+                    )
                 )
-            )
 
-            return oc
+                return oc
+            else:
+                return display_ip_blocked_message()
         else:
             return display_unauthorized_message()
     else:
@@ -444,10 +461,23 @@ def is_key_active():
 
 def is_authorized(response):
     if 'error' in response:
-        if (response.get('error') == 'Authentication::getUser::wrong key'):
+        if response.get('error') == 'Authentication::getUser::wrong key':
             return False
     return True
 
+
+def is_ip_valid(response):
+    if 'error' in response:
+        if response.get('error') == 'Authorization::checkRules::this ip is not allowed':
+            return False
+    return True
+
+
+def display_ip_blocked_message():
+    return MessageContainer(
+        IP_BLOCKED_TITLE,
+        IP_BLOCKED_MESSAGE
+    )
 
 def display_unauthorized_message():
     return MessageContainer(

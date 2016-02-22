@@ -6,7 +6,7 @@
     "ABCSelect_EN": "Английский",
     "ABCSelect_RU": "Русский",
     "MissingAPIKeyTitle": "Ошибка",
-    "MissingAPIKeyMessage": "Отсутствует API Key. Зайдите в настройки и введите ключ. После чего нужно активировать ваш IP на сайте Seasonvar",
+    "MissingAPIKeyMessage": "Отсутствует API Key. Зайдите в настройки и введите ключ. Незабудьте активировать ваш IP на сайте seasonvar.ru",
     "Search": "Поиск",
     "SearchPrompt": "Ищите сериал?",
     "EmptyResultTitle": "Пустой результат",
@@ -19,5 +19,7 @@
     "BookmarkListClearMessage": "Внимание! Будут удалены все закладки",
     "BookmarkListClearedMessage": "Ваши закладки были удалены",
     "UnauthorizedTitle": "Доступ запрещен",
-    "UnauthorizedMessage": "Неавторизированный пользователь"
+    "UnauthorizedMessage": "Неавторизированный пользователь",
+    "IpBlockedTitle": "Доступ запрещен",
+    "IpBlockedMessage": "Ваш IP не активирован. Зайдите на веб-сайт seasonvar.ru и активируйте его в настройках вашего аккаунта."
 }

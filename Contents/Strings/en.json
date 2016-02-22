@@ -6,7 +6,7 @@
     "ABCSelect_EN": "English",
     "ABCSelect_RU": "Russian",
     "MissingAPIKeyTitle": "Error",
-    "MissingAPIKeyMessage": "Missing API Key. Open Settings and input a valid key. Next goto website and activate your key.",
+    "MissingAPIKeyMessage": "Missing API Key. Open settings and input a valid key. Don't forget to activate IP on the seasonvar.ru website.",
     "Search": "Search",
     "SearchPrompt": "Search for the serial?",
     "EmptyResultTitle": "Empty result",
@@ -19,5 +19,7 @@
     "BookmarkListClearMessage": "CAUTION! This will clear your entire bookmark list!",
     "BookmarkListClearedMessage": "Your bookmark list has been cleared.",
     "UnauthorizedTitle": "Access Denied",
-    "UnauthorizedMessage": "Unauthorized user"
+    "UnauthorizedMessage": "Unauthorized user",
+    "IpBlockedTitle": "Access Denied",
+    "IpBlockedMessage": "Your IP is not active. Open seasonvar.ru website and activate IP for your account."
 }
