@@ -421,7 +421,7 @@ def create_eo(url, title, summary, rating, thumb, include_container=False):
                                 ],
                                 container=Container.MP4,
                                 video_codec=VideoCodec.H264,
-                                video_resolution='544',
+                                video_resolution=1080,
                                 audio_codec=AudioCodec.AAC,
                                 audio_channels=2,
                                 optimized_for_streaming=True
