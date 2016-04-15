@@ -167,7 +167,7 @@ def MenuSearch(query):
 
 
 ######################################################################################
-# List of the latest TV shows
+# Menu latest
 ######################################################################################
 
 
@@ -206,8 +206,8 @@ def MenuLatest(title):
 
         oc.add(
             TVShowObject(
-                rating_key=serial_title,
                 key=Callback(get_season_by_id, id=serial_id),
+                rating_key=serial_title,
                 title=serial_title,
                 summary=serial_summary,
                 thumb=Resource.ContentsOfURLWithFallback(url=serial_thumb)
@@ -444,13 +444,17 @@ def display_season(id, season):
     for video in playlist:
         video_link = video.get('link')
         video_name = video.get('name')
+        episode = video_name.split(" ")[0]
 
         oc.add(create_eo(
             url=video_link,
             title=video_name,
             summary=filter_non_printable(response.get('description')),
             rating=averageRating(response.get('rating')),
-            thumb=response.get('poster_small')
+            thumb=response.get('poster_small'),
+            index=episode,
+            season=season,
+            show=title1
         ))
 
     if has_bookmark(response.get('id')):
@@ -477,15 +481,25 @@ def display_season(id, season):
 
 
 @route(PREFIX + "/create_eo")
-def create_eo(url, title, summary, rating, thumb, include_container=False):
+def create_eo(url, title, summary, rating, thumb, index, show, season="1", include_container=False):
     eo = EpisodeObject(
         rating_key=url,
-        key=Callback(create_eo, url=url, title=title, summary=summary, rating=rating, thumb=thumb,
+        key=Callback(create_eo,
+                     url=url, title=title,
+                     summary=summary,
+                     rating=rating,
+                     thumb=thumb,
+                     index=index,
+                     season=season,
+                     show=show,
                      include_container=True),
         title=title,
         summary=summary,
         rating=float(rating),
         thumb=thumb,
+        season=int(season),
+        index=int(index),
+        show=show,
         items=[
             MediaObject(
                 parts=[
@@ -520,7 +534,7 @@ def MenuBookmarks(title):
         for show_id in Dict['bookmarks']:
             count += 1
             show = Dict['bookmarks'][show_id]
-            show_title = unicode(show.get('title'), 'UTF-8')
+            show_title = show.get('title')
             oc.add(
                 TVShowObject(
                     rating_key=show_title,
