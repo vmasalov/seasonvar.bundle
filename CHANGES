@@ -1,0 +1,9 @@
+1.4
+---
+ - fixed bookmarks logic
+ - added other category for non-abc shows
+ - updated translation
+ - extracted API url to the preferences
+ - code refactoring
+ - added extra information about a show
+
