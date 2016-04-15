@@ -1,5 +1,5 @@
-import json, re
-
+import json
+import re
 
 PREFIX = "/video/seasonvarserials"
 
@@ -69,20 +69,52 @@ def Start():
     VideoItem.thumb = R(ICON_DEFAULT)
 
     HTTP.CacheTime = CACHE_1HOUR
-    HTTP.Headers[
-        'User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
+    HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
     HTTP.Headers['Referer'] = 'http://seasonvar.ru'
 
 
 @handler(PREFIX, NAME, art=ART, thumb=ICON_DEFAULT)
 def MainMenu():
-    oc = ObjectContainer()
-    oc.add(DirectoryObject(key=Callback(ru_abc, title=ABC_SELECT_RU), title=ABC_SELECT_RU, thumb=R(ICON_RU)))
-    oc.add(DirectoryObject(key=Callback(en_abc, title=ABC_SELECT_EN), title=ABC_SELECT_EN, thumb=R(ICON_EN)))
-    oc.add(DirectoryObject(key=Callback(other_abc, title=ABC_SELECT_OTHER), title=ABC_SELECT_OTHER, thumb=R(ICON_OTHER)))
-    oc.add(DirectoryObject(key=Callback(latest, title=LATEST_SERIALS), title=LATEST_SERIALS, thumb=R(ICON_LATEST)))
-    oc.add(InputDirectoryObject(key=Callback(search), title=SEARCH, prompt=SEARCH_PROMPT, thumb=R(ICON_SEARCH)))
-    oc.add(DirectoryObject(key=Callback(bookmarks, title=BOOKMARK), title=BOOKMARK, thumb=R(ICON_BOOKMARKS)))
+    oc = ObjectContainer(
+        objects=[
+            # Russian ABC category
+            DirectoryObject(
+                key=Callback(MenuRU, title=ABC_SELECT_RU),
+                title=ABC_SELECT_RU,
+                thumb=R(ICON_RU)),
+
+            # English ABC category
+            DirectoryObject(
+                key=Callback(MenuEn, title=ABC_SELECT_EN),
+                title=ABC_SELECT_EN,
+                thumb=R(ICON_EN)),
+
+            # Symbols category
+            DirectoryObject(
+                key=Callback(MenuOther, title=ABC_SELECT_OTHER),
+                title=ABC_SELECT_OTHER,
+                thumb=R(ICON_OTHER)),
+
+            # Latest category
+            DirectoryObject(
+                key=Callback(MenuLatest, title=LATEST_SERIALS),
+                title=LATEST_SERIALS,
+                thumb=R(ICON_LATEST)),
+
+            # Bookmarks category
+            DirectoryObject(
+                key=Callback(MenuBookmarks, title=BOOKMARK),
+                title=BOOKMARK,
+                thumb=R(ICON_BOOKMARKS)),
+
+            # Search category (Only visible on TV)
+            InputDirectoryObject(
+                key=Callback(MenuSearch),
+                title=SEARCH,
+                prompt=SEARCH_PROMPT,
+                thumb=R(ICON_SEARCH))
+        ]
+    )
 
     return oc
 
@@ -93,7 +125,7 @@ def MainMenu():
 
 
 @route(PREFIX + "/search")
-def search(query):
+def MenuSearch(query):
     # check for API KEY
     if not is_api_key_set():
         return display_missing_api_key_message()
@@ -140,7 +172,7 @@ def search(query):
 
 
 @route(PREFIX + "/latest")
-def latest(title):
+def MenuLatest(title):
     # check for API KEY
     if not is_api_key_set():
         return display_missing_api_key_message()
@@ -191,7 +223,7 @@ def latest(title):
 
 
 @route(PREFIX + "/en")
-def en_abc(title):
+def MenuEn(title):
     abc = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
            'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Z']
 
@@ -202,7 +234,7 @@ def en_abc(title):
 
 
 @route(PREFIX + "/ru")
-def ru_abc(title):
+def MenuRU(title):
     abc = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф',
            'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Э', 'Ю', 'Я']
 
@@ -213,7 +245,7 @@ def ru_abc(title):
 
 
 @route(PREFIX + "/other")
-def other_abc(title):
+def MenuOther(title):
     abc = ['.', '+', '#', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
 
     oc = ObjectContainer(title1=title)
@@ -481,7 +513,7 @@ def create_eo(url, title, summary, rating, thumb, include_container=False):
 
 
 @route(PREFIX + "/bookmarks")
-def bookmarks(title):
+def MenuBookmarks(title):
     count = 0
     if 'bookmarks' in Dict:
         oc = ObjectContainer(title1=title)
