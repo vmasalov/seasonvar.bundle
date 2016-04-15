@@ -4,5 +4,11 @@
     "label": "API Key",
     "type": "text",
     "default": ""
+  },
+  {
+    "id": "url",
+    "label": "API URL",
+    "type": "text",
+    "default": "http://api.seasonvar.ru/"
   }
 ]
