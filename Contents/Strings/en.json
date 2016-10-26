@@ -25,7 +25,7 @@
     "UnauthorizedMessage": "Unauthorized user. Your API key is invalid",
     "IpBlockedTitle": "Access Denied",
     "IpBlockedMessage": "Your IP is not active. Open seasonvar.ru website and activate IP for your account",
-    "Translation": "Translation: ",
+    "Translation": "Translation: %s",
     "UnknownTranslator": "Unknown",
     "ErrorTitle": "Error",
     "NoPremiumMessage": "User does not have premium access"

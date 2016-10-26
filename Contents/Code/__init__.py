@@ -415,9 +415,9 @@ def get_season_by_id(id):
         oc = ObjectContainer(title1=unicode(title, 'UTF-8'))
 
         for key in translations:
-            title2 = TRANSLATION + key
+            title2 = str(TRANSLATION) % key
             if key == '__default__':
-                title2 = TRANSLATION + UNKNOWN_TRANSLATOR
+                title2 = str(TRANSLATION) % str(UNKNOWN_TRANSLATOR)
             oc.add(DirectoryObject(key=Callback(display_season,
                                                 id=key,
                                                 season=response.get('season_number') or "1"),
@@ -436,7 +436,7 @@ def display_season(id, season):
     if season == "0":
         season = "1"
 
-    title2 = SEASON_TITLE + " " + season
+    title2 = str(SEASON_TITLE) + " " + season
 
     oc = ObjectContainer(title1=title1, title2=title2)
 
