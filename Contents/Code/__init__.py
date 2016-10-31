@@ -62,7 +62,7 @@ ICON_BOOKMARKS_CLEAR = 'icon-clear.png'
 
 
 def Start():
-    MediaContainer.title1 = NAME
+    MediaContainer.title1 = UNICODE(NAME)
     MediaContainer.viewGroup = "List"
     MediaContainer.art = R(ART)
     DirectoryItem.thumb = R(ICON_DEFAULT)
@@ -80,37 +80,37 @@ def MainMenu():
             # Russian ABC category
             DirectoryObject(
                 key=Callback(MenuRU, title=ABC_SELECT_RU),
-                title=ABC_SELECT_RU,
+                title=UNICODE(ABC_SELECT_RU),
                 thumb=R(ICON_RU)),
 
             # English ABC category
             DirectoryObject(
                 key=Callback(MenuEn, title=ABC_SELECT_EN),
-                title=ABC_SELECT_EN,
+                title=UNICODE(ABC_SELECT_EN),
                 thumb=R(ICON_EN)),
 
             # Symbols category
             DirectoryObject(
                 key=Callback(MenuOther, title=ABC_SELECT_OTHER),
-                title=ABC_SELECT_OTHER,
+                title=UNICODE(ABC_SELECT_OTHER),
                 thumb=R(ICON_OTHER)),
 
             # Latest category
             DirectoryObject(
                 key=Callback(MenuLatest, title=LATEST_SERIALS),
-                title=LATEST_SERIALS,
+                title=UNICODE(LATEST_SERIALS),
                 thumb=R(ICON_LATEST)),
 
             # Bookmarks category
             DirectoryObject(
                 key=Callback(MenuBookmarks, title=BOOKMARK),
-                title=BOOKMARK,
+                title=UNICODE(BOOKMARK),
                 thumb=R(ICON_BOOKMARKS)),
 
             # Search category (Only visible on TV)
             InputDirectoryObject(
                 key=Callback(MenuSearch),
-                title=SEARCH,
+                title=UNICODE(SEARCH),
                 prompt=SEARCH_PROMPT,
                 thumb=R(ICON_SEARCH))
         ]
@@ -158,8 +158,8 @@ def MenuSearch(query):
             TVShowObject(
                 rating_key=name,
                 key=Callback(get_season_by_id, id=season.get('id')),
-                title=name,
-                summary=filter_non_printable(season.get('description')),
+                title=UNICODE(name),
+                summary=UNICODE(filter_non_printable(season.get('description'))),
                 thumb=Resource.ContentsOfURLWithFallback(url=season.get('poster_small'), fallback=ICON_COVER)
             )
         )
@@ -197,7 +197,7 @@ def MenuLatest(title):
     if not response_check == "ok":
         return display_message(response_check[0], response_check[1])
 
-    oc = ObjectContainer(title1=unicode(title, 'UTF-8'))
+    oc = ObjectContainer(title1=UNICODE(title))
     for serial in response:
         serial_id = serial.get('id')
         serial_title = serial.get('name')
@@ -208,8 +208,8 @@ def MenuLatest(title):
             TVShowObject(
                 key=Callback(get_season_by_id, id=serial_id),
                 rating_key=serial_title,
-                title=serial_title,
-                summary=serial_summary,
+                title=UNICODE(serial_title),
+                summary=UNICODE(serial_summary),
                 thumb=Resource.ContentsOfURLWithFallback(url=serial_thumb)
             )
         )
@@ -227,9 +227,11 @@ def MenuEn(title):
     abc = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
            'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Z']
 
-    oc = ObjectContainer(title1=title)
+    oc = ObjectContainer(title1=UNICODE(title))
     for letter in abc:
-        oc.add(DirectoryObject(key=Callback(get_serial_list_by_title, title=letter), title=unicode(letter, 'UTF-8')))
+        oc.add(DirectoryObject(key=Callback(get_serial_list_by_title, 
+                                            title=UNICODE(letter)), 
+                               title=UNICODE(letter)))
     return oc
 
 
@@ -238,9 +240,11 @@ def MenuRU(title):
     abc = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф',
            'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Э', 'Ю', 'Я']
 
-    oc = ObjectContainer(title1=title)
+    oc = ObjectContainer(title1=UNICODE(title))
     for letter in abc:
-        oc.add(DirectoryObject(key=Callback(get_serial_list_by_title, title=letter), title=unicode(letter, 'UTF-8')))
+        oc.add(DirectoryObject(key=Callback(get_serial_list_by_title, 
+                                            title=UNICODE(letter)), 
+                               title=UNICODE(letter)))
     return oc
 
 
@@ -248,9 +252,11 @@ def MenuRU(title):
 def MenuOther(title):
     abc = ['.', '+', '#', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
 
-    oc = ObjectContainer(title1=title)
+    oc = ObjectContainer(title1=UNICODE(title))
     for letter in abc:
-        oc.add(DirectoryObject(key=Callback(get_serial_list_by_title, title=letter), title=unicode(letter, 'UTF-8')))
+        oc.add(DirectoryObject(key=Callback(get_serial_list_by_title, 
+                                            title=UNICODE(letter)), 
+                               title=UNICODE(letter)))
     return oc
 
 
@@ -280,18 +286,18 @@ def get_serial_list_by_title(title):
     if not response_check == "ok":
         return display_message(response_check[0], response_check[1])
 
-    oc = ObjectContainer(title1=unicode(title, 'UTF-8'))
-
+    oc = ObjectContainer(title1=UNICODE(title))
     for serial in response:
-        serial_title = serial.get('name')
+        serial_title = UNICODE(serial.get('name'))
         serial_thumb = serial.get('poster_small')
-        serial_summary = filter_non_printable(serial.get('description'))
+        serial_summary = UNICODE(filter_non_printable(serial.get('description')))
         serial_country = serial.get('country')
 
         oc.add(
             TVShowObject(
                 rating_key=serial_title,
-                key=Callback(get_season_list_by_title, title=serial_title),
+                key=Callback(get_season_list_by_title, 
+                             title=serial_title),
                 title=serial_title,
                 summary=serial_summary,
                 countries=[serial_country],
@@ -314,7 +320,7 @@ def get_season_list_by_title(title):
     values = {
         'key': Prefs["key"],
         'command': 'getSeasonList',
-        'name': unicode(title, 'UTF-8')
+        'name':UNICODE(title)
     }
 
     request = HTTP.Request(Prefs["url"], values=values, cacheTime=CACHE_1DAY)
@@ -325,8 +331,7 @@ def get_season_list_by_title(title):
     if not response_check == "ok":
         return display_message(response_check[0], response_check[1])
 
-    oc = ObjectContainer(title1=unicode(title, 'UTF-8'))
-
+    oc = ObjectContainer(title1=UNICODE(title))
     for season in response:
         season_id = season.get('id')
         season_number = season.get('season_number') or "1"
@@ -334,9 +339,9 @@ def get_season_list_by_title(title):
         oc.add(SeasonObject(
             rating_key=season_id,
             key=Callback(get_season_by_id, id=season_id),
-            title=SEASON_TITLE + ' ' + season_number,
+            title=UNICODE(SEASON_TITLE + ' ' + season_number),
             index=int(season_number),
-            summary=filter_non_printable(season.get('description')),
+            summary=UNICODE(filter_non_printable(season.get('description'))),
             thumb=Resource.ContentsOfURLWithFallback(url=season.get('poster_small'), fallback=ICON_COVER)
         ))
     return oc
@@ -412,8 +417,7 @@ def get_season_by_id(id):
         MediaContainer.art = Resource.ContentsOfURLWithFallback(url=response.get('poster'), fallback=ART)
 
         title = str(response.get('name') + " ")
-        oc = ObjectContainer(title1=unicode(title, 'UTF-8'))
-
+        oc = ObjectContainer(title1=UNICODE(title))
         for key in translations:
             title2 = str(TRANSLATION) % key
             if key == '__default__':
@@ -421,7 +425,7 @@ def get_season_by_id(id):
             oc.add(DirectoryObject(key=Callback(display_season,
                                                 id=key,
                                                 season=response.get('season_number') or "1"),
-                                   title=title2 + " (" + str(len(translations[key])) + ")"))
+                                                title=UNICODE(title2 + " (" + str(len(translations[key])) + ")")))
         return oc
 
 
@@ -437,10 +441,9 @@ def display_season(id, season):
         season = "1"
 
     title2 = str(SEASON_TITLE) + " " + season
+    oc = ObjectContainer(title1=UNICODE(title1), title2=UNICODE(title2))
 
-    oc = ObjectContainer(title1=title1, title2=title2)
-
-    playlist = response.get('playlist').get(id)
+    playlist = response.get('playlist').get(id) 
     for video in playlist:
         video_link = video.get('link')
         video_name = video.get('name')
@@ -448,13 +451,13 @@ def display_season(id, season):
 
         oc.add(create_eo(
             url=video_link,
-            title=video_name,
-            summary=filter_non_printable(response.get('description')),
+            title=UNICODE(video_name),
+            summary=UNICODE(filter_non_printable(response.get('description'))),
             rating=averageRating(response.get('rating')),
             thumb=response.get('poster_small'),
             index=episode,
             season=season,
-            show=title1
+            show=UNICODE(title1)
         ))
 
     if has_bookmark(response.get('id')):
@@ -462,18 +465,21 @@ def display_season(id, season):
         # show is already in the bookmarks
         oc.add(DirectoryObject(
             key=Callback(remove_bookmark, id=response.get('id')),
-            title=REMOVE_BOOKMARK_TITLE,
-            summary=response.get('name') + REMOVE_BOOKMARK_MESSAGE,
+            title=UNICODE(REMOVE_BOOKMARK_TITLE),
+            summary=UNICODE(response.get('name') + REMOVE_BOOKMARK_MESSAGE),
             thumb=R(ICON_BOOKMARKS_CLEAR)
         ))
     else:
 
         # show is not in the bookmarks
         oc.add(DirectoryObject(
-            key=Callback(add_bookmark, title=response.get('name'), id=response.get('id'), thumb=response.get('poster'),
-                         summary=filter_non_printable(response.get('description'))),
-            title=ADD_BOOKMARK_TITLE,
-            summary=response.get('name') + ADD_BOOKMARK_MESSAGE,
+            key=Callback(add_bookmark, 
+                         title=UNICODE(response.get('name')), 
+                         id=response.get('id'), 
+                         thumb=response.get('poster'),
+                         summary=UNICODE(filter_non_printable(response.get('description')))),
+            title=UNICODE(ADD_BOOKMARK_TITLE),
+            summary=UNICODE(response.get('name') + ADD_BOOKMARK_MESSAGE),
             thumb=R(ICON_ADD_BOOKMARK)
         ))
 
@@ -485,16 +491,17 @@ def create_eo(url, title, summary, rating, thumb, index, show, season="1", inclu
     eo = EpisodeObject(
         rating_key=url,
         key=Callback(create_eo,
-                     url=url, title=title,
-                     summary=summary,
+                     url=url, 
+                     title=UNICODE(title),
+                     summary=UNICODE(summary),
                      rating=rating,
                      thumb=thumb,
                      index=index,
                      season=season,
                      show=show,
                      include_container=True),
-        title=title,
-        summary=summary,
+        title=UNICODE(title),
+        summary=UNICODE(summary),
         rating=float(rating),
         thumb=thumb,
         season=int(season),
@@ -539,8 +546,8 @@ def MenuBookmarks(title):
                 TVShowObject(
                     rating_key=show_title,
                     key=Callback(get_season_by_id, id=show_id),
-                    title=show_title,
-                    summary=show.get('summary'),
+                    title=UNICODE(show_title),
+                    summary=UNICODE(show.get('summary')),
                     thumb=Resource.ContentsOfURLWithFallback(url=show.get('thumb'))
                 )
             )
@@ -549,9 +556,9 @@ def MenuBookmarks(title):
             # add a way to clear bookmarks list
             oc.add(DirectoryObject(
                 key=Callback(clear_bookmarks),
-                title=BOOKMARK_CLEAR_TITLE,
+                title=UNICODE(BOOKMARK_CLEAR_TITLE),
                 thumb=R(ICON_BOOKMARKS_CLEAR),
-                summary=BOOKMARK_CLEAR_MESSAGE
+                summary=UNICODE(BOOKMARK_CLEAR_MESSAGE)
             ))
 
             return oc
@@ -676,3 +683,6 @@ def filter_non_printable(s):
         return ""
     else:
         return re.sub(r'[^\\[\\]]', '', s, re.UNICODE)
+
+def UNICODE(arg):
+    return unicode(str(arg), "UTF-8")
