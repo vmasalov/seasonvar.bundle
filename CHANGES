@@ -1,3 +1,8 @@
+1.5
+---
+ - fixed unicode translations
+ - fixed a bug with incorrect season format (trailers and so on)
+
 1.4
 ---
  - fixed bookmarks logic
