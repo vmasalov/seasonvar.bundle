@@ -376,26 +376,51 @@ def get_season_by_id(id):
     playlist = response.get('playlist')
 
     # form new dictionary based on the translation
-    key = ""
+    key = 0
+    translation = ""
     translations = {}
+    translations_list = []
     for video in playlist:
 
         # check if there are > 1 translation
         if 'perevod' in video:
-            key = video.get('perevod')
+            translation = video.get('perevod')
         else:
             if 'perevod' in response:
-                key = response.get('perevod')
+                translation = response.get('perevod')
             else:
-                key = "__default__"
+                translation = "__default__"
 
+        # check for missing key index;
+        try:
+           key = translations_list.index(translation)
+        except ValueError:
+            translations_list.append(translation)
+        finally:
+            # at this point translation was added into the list
+            # get index
+            key = translations_list.index(translation)
+
+        # add video into desired translation list
         if key not in translations:
             translations[key] = []
 
+        episode = 0;
+        try:
+            episode = int(video.get('name').split(" ")[0])
+        except ValueError:
+            # These idiots don't follow their own format for the data
+            # and provide incorrect values
+            episode = 0
+
         translations[key].append({
             "name": video.get('name'),
-            "link": video.get('link')
+            "link": video.get('link'),
+            "episode": episode
         })
+
+        # todo: add subtitles
+        # video.get('subtitles')
 
     # Store current response into global Dict
     Dict['cache'] = {
@@ -406,6 +431,7 @@ def get_season_by_id(id):
         'description': filter_non_printable(response.get('description')),
         'rating': response.get('rating'),
         'playlist': translations,
+        'playlist_mapping': translations_list,
         'season': response.get('season_number') or "1"
     }
     Dict.Save()
@@ -419,8 +445,8 @@ def get_season_by_id(id):
         title = str(response.get('name') + " ")
         oc = ObjectContainer(title1=UNICODE(title))
         for key in translations:
-            title2 = str(TRANSLATION) % key
-            if key == '__default__':
+            title2 = str(TRANSLATION) % translations_list[key]
+            if translations_list[key] == '__default__':
                 title2 = str(TRANSLATION) % str(UNKNOWN_TRANSLATOR)
             oc.add(DirectoryObject(key=Callback(display_season,
                                                 id=key,
@@ -443,11 +469,11 @@ def display_season(id, season):
     title2 = str(SEASON_TITLE) + " " + season
     oc = ObjectContainer(title1=UNICODE(title1), title2=UNICODE(title2))
 
-    playlist = response.get('playlist').get(id) 
+    playlist = response.get('playlist')[int(id)]
     for video in playlist:
         video_link = video.get('link')
         video_name = video.get('name')
-        episode = video_name.split(" ")[0]
+        video_episode = video.get('episode')
 
         oc.add(create_eo(
             url=video_link,
@@ -455,9 +481,9 @@ def display_season(id, season):
             summary=UNICODE(filter_non_printable(response.get('description'))),
             rating=averageRating(response.get('rating')),
             thumb=response.get('poster_small'),
-            index=episode,
+            index=video_episode,
             season=season,
-            show=UNICODE(title1)
+            show=UNICODE(filter_non_printable(title1))
         ))
 
     if has_bookmark(response.get('id')):
@@ -492,21 +518,21 @@ def create_eo(url, title, summary, rating, thumb, index, show, season="1", inclu
         rating_key=url,
         key=Callback(create_eo,
                      url=url, 
-                     title=UNICODE(title),
-                     summary=UNICODE(summary),
+                     title=UNICODE(filter_non_printable(title)),
+                     summary=UNICODE(filter_non_printable(summary)),
                      rating=rating,
                      thumb=thumb,
-                     index=index,
-                     season=season,
-                     show=show,
+                     index=int(index),
+                     season=int(season),
+                     show=UNICODE(filter_non_printable(show)),
                      include_container=True),
-        title=UNICODE(title),
-        summary=UNICODE(summary),
+        title=UNICODE(filter_non_printable(title)),
+        summary=UNICODE(filter_non_printable(summary)),
         rating=float(rating),
         thumb=thumb,
         season=int(season),
         index=int(index),
-        show=show,
+        show=UNICODE(filter_non_printable(show)),
         items=[
             MediaObject(
                 parts=[
