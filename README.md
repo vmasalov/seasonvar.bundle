@@ -16,7 +16,8 @@ Installation
 ------------
 
 1. Download git repo and place it into Plug-ins folder on your Plex media server.
-> Library/Application Support/Plex Media Server/Plug-ins
+> ~/Library/Application Support/Plex Media Server/Plug-ins
+>> /var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-ins/
 
 2. New channel 'Seasonvar: Premium' should appear.
 
