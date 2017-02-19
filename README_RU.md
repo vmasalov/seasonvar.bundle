@@ -17,7 +17,7 @@ __Требуется активная премиум подписка__ и де�
 
 1. Скачать git репозиторий и скопировать его в папку Plug-ins на вашем Plex медиа сервере.
 > ~/Library/Application Support/Plex Media Server/Plug-ins
-> /var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-ins/
+>> /var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-ins/
 
 2. Запустить Plex, новый канал 'Seasonvar: Премиум' должен появиться в меню.
 > Возможно будет на английском языке. Зависит от локализации.
