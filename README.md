@@ -9,7 +9,7 @@ __Requires premium subscription__ activated and a valid API key.
 Try Premium for free using the following link: http://seasonvar.ru/premDar.php
 
 
-Current version: 1.5
+Current version: 1.6
 --------------------
 
 Installation
