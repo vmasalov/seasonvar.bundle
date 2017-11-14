@@ -1,3 +1,7 @@
+1.6
+---
+ - fixed getting serial list by letter
+
 1.5
 ---
  - fixed unicode translations
