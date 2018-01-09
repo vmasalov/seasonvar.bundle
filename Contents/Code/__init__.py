@@ -292,7 +292,7 @@ def get_serial_list_by_title(title):
         
         # check 1st letter of the name, as server returns EVERY letter occurence found
 	    if not serial_title.startswith(title):
-	        continue
+	      continue
         
         
         serial_thumb = serial.get('poster_small')
