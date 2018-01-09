@@ -519,7 +519,7 @@ def display_season(id, season):
 
 
 @route(PREFIX + "/create_eo")
-def create_eo(url, title, summary, rating, thumb, index, show, season="1", include_container=False):
+def create_eo(url, title, summary, rating, thumb, index, show, season="1", include_container=False, *unsupported_args):
     eo = EpisodeObject(
         rating_key=url,
         key=Callback(create_eo,
