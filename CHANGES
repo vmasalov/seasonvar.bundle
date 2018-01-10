@@ -1,3 +1,7 @@
+1.7 
+---
+ - fixed crash on unsupported params
+
 1.6
 ---
  - fixed getting serial list by letter
