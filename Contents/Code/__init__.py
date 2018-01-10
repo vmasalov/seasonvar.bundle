@@ -291,10 +291,9 @@ def get_serial_list_by_title(title):
         serial_title = UNICODE(serial.get('name'))
         
         # check 1st letter of the name, as server returns EVERY letter occurence found
-	    if not serial_title.startswith(title):
-	      continue
-        
-        
+  if not serial_title.startswith(title):
+      continue
+
         serial_thumb = serial.get('poster_small')
         serial_summary = UNICODE(filter_non_printable(serial.get('description')))
         serial_country = serial.get('country')
