@@ -10,5 +10,11 @@
     "label": "API URL",
     "type": "text",
     "default": "http://api.seasonvar.ru/"
+  },
+  {
+    "id": "resolution",
+    "label": "Video Resolution",
+    "type": "text",
+    "default": "1080"
   }
 ]
