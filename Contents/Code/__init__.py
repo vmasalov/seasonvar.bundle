@@ -1,10 +1,48 @@
 import json
 import re
-from __locale_patch import L, SetAvailableLanguages
 
 PREFIX = "/video/seasonvarserials"
 
+NAME = L('Title')
+LATEST_SERIALS = L('LatestSerials')
+LIST_SERIALS = L('ListSerials')
+SEASON_TITLE = L('SeasonTitle')
+ABC_SELECT_EN = L('ABCSelect_EN')
+ABC_SELECT_RU = L('ABCSelect_RU')
+ABC_SELECT_OTHER = L('ABCSelect_OTHER')
+SEARCH = L('Search')
+SEARCH_PROMPT = L('SearchPrompt')
+EMPTY_RESULT_TITLE = L('EmptyResultTitle')
+EMPTY_RESULT_MESSAGE = L('EmptyResultMessage')
+TRANSLATION = L('Translation')
+UNKNOWN_TRANSLATOR = L('UnknownTranslator')
+ADD_BOOKMARK_TITLE = L('AddBookmarkTitle')
+REMOVE_BOOKMARK_TITLE = L('RemoveBookmarkTitle')
+ADD_BOOKMARK_MESSAGE = L('AddBookmarkMessage')
+REMOVE_BOOKMARK_MESSAGE = L('RemoveBookmarkMessage')
+
+BOOKMARK = L('BookmarkList')
+BOOKMARK_ADDED_MESSAGE = L('BookmarkListAddedMessage')
+BOOKMARK_REMOVED_MESSAGE = L('BookmarkListRemovedMessage')
+
+BOOKMARK_CLEAR_TITLE = L('BookmarkListClearTitle')
+BOOKMARK_CLEAR_MESSAGE = L('BookmarkListClearMessage')
+BOOKMARK_CLEARED_MESSAGE = L('BookmarkListClearedMessage')
+BOOKMARK_EMPTY_MESSAGE = L('BookmarkListEmptyMessage')
+
+CLEAR_BOOKMARK = L('ClearBookmark')
+
+MISSING_API_KEY_TITLE = L('MissingAPIKeyTitle')
+MISSING_API_KEY_MESSAGE = L('MissingAPIKeyMessage')
+UNAUTHORIZED_TITLE = L('UnauthorizedTitle')
+UNAUTHORIZED_MESSAGE = L('UnauthorizedMessage')
+IP_BLOCKED_TITLE = L('IpBlockedTitle')
+IP_BLOCKED_MESSAGE = L('IpBlockedMessage')
+NO_PREMIUM_MESSAGE = L('NoPremiumMessage')
+ERROR_TITLE = L("ErrorTitle")
+
 ART = 'art-default.jpg'
+
 ICON_DEFAULT = 'icon-default.png'
 ICON_RESUME = 'icon-resume.png'
 ICON_LATEST = 'icon-latest.png'
@@ -24,57 +62,56 @@ ICON_BOOKMARKS_CLEAR = 'icon-clear.png'
 
 
 def Start():
-    MediaContainer.title1 = UNICODE(L('Title'))
+    MediaContainer.title1 = UNICODE(NAME)
     MediaContainer.viewGroup = "List"
     MediaContainer.art = R(ART)
     DirectoryItem.thumb = R(ICON_DEFAULT)
     VideoItem.thumb = R(ICON_DEFAULT)
-    SetAvailableLanguages({'en', 'ru'})
 
     HTTP.CacheTime = CACHE_1HOUR
     HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
     HTTP.Headers['Referer'] = 'http://seasonvar.ru'
 
 
-@handler(PREFIX, L('Title'), art=ART, thumb=ICON_DEFAULT)
+@handler(PREFIX, NAME, art=ART, thumb=ICON_DEFAULT)
 def MainMenu():
     oc = ObjectContainer(
         objects=[
             # Russian ABC category
             DirectoryObject(
-                key=Callback(MenuRU, title=L('ABCSelect_RU')),
-                title=UNICODE(L('ABCSelect_RU')),
+                key=Callback(MenuRU, title=ABC_SELECT_RU),
+                title=UNICODE(ABC_SELECT_RU),
                 thumb=R(ICON_RU)),
 
             # English ABC category
             DirectoryObject(
-                key=Callback(MenuEn, title=L('ABCSelect_EN')),
-                title=UNICODE(L('ABCSelect_EN')),
+                key=Callback(MenuEn, title=ABC_SELECT_EN),
+                title=UNICODE(ABC_SELECT_EN),
                 thumb=R(ICON_EN)),
 
             # Symbols category
             DirectoryObject(
-                key=Callback(MenuOther, title=L('ABCSelect_OTHER')),
-                title=UNICODE(L('ABCSelect_OTHER')),
+                key=Callback(MenuOther, title=ABC_SELECT_OTHER),
+                title=UNICODE(ABC_SELECT_OTHER),
                 thumb=R(ICON_OTHER)),
 
             # Latest category
             DirectoryObject(
-                key=Callback(MenuLatest, title=L('LatestSerials')),
-                title=UNICODE(L('LatestSerials')),
+                key=Callback(MenuLatest, title=LATEST_SERIALS),
+                title=UNICODE(LATEST_SERIALS),
                 thumb=R(ICON_LATEST)),
 
             # Bookmarks category
             DirectoryObject(
-                key=Callback(MenuBookmarks, title=L('BookmarkList')),
-                title=UNICODE(L('BookmarkList')),
+                key=Callback(MenuBookmarks, title=BOOKMARK),
+                title=UNICODE(BOOKMARK),
                 thumb=R(ICON_BOOKMARKS)),
 
             # Search category (Only visible on TV)
             InputDirectoryObject(
                 key=Callback(MenuSearch),
-                title=UNICODE(L('Search')),
-                prompt=L('SearchPrompt'),
+                title=UNICODE(SEARCH),
+                prompt=SEARCH_PROMPT,
                 thumb=R(ICON_SEARCH))
         ]
     )
@@ -307,7 +344,7 @@ def get_season_list_by_title(title):
         oc.add(SeasonObject(
             rating_key=season_id,
             key=Callback(get_season_by_id, id=season_id),
-            title=UNICODE(L('SeasonTitle') + ' ' + season_number),
+            title=UNICODE(SEASON_TITLE + ' ' + season_number),
             index=int(season_number),
             summary=UNICODE(filter_non_printable(season.get('description'))),
             thumb=Resource.ContentsOfURLWithFallback(url=season.get('poster_small'), fallback=ICON_COVER)
@@ -413,9 +450,9 @@ def get_season_by_id(id):
         title = str(response.get('name') + " ")
         oc = ObjectContainer(title1=UNICODE(title))
         for key in translations:
-            title2 = str(L('Translation')) % translations_list[key]
+            title2 = str(TRANSLATION) % translations_list[key]
             if translations_list[key] == '__default__':
-                title2 = str(L('Translation')) % str(L('UnknownTranslator'))
+                title2 = str(TRANSLATION) % str(UNKNOWN_TRANSLATOR)
             oc.add(DirectoryObject(key=Callback(display_season,
                                                 id=key,
                                                 season=response.get('season_number') or "1"),
@@ -434,7 +471,7 @@ def display_season(id, season):
     if season == "0":
         season = "1"
 
-    title2 = str(L('SeasonTitle')) + " " + season
+    title2 = str(SEASON_TITLE) + " " + season
     oc = ObjectContainer(title1=UNICODE(title1), title2=UNICODE(title2))
 
     playlist = response.get('playlist')[int(id)]
@@ -459,8 +496,8 @@ def display_season(id, season):
         # show is already in the bookmarks
         oc.add(DirectoryObject(
             key=Callback(remove_bookmark, id=response.get('id')),
-            title=UNICODE(L('RemoveBookmarkTitle')),
-            summary=UNICODE(response.get('name') + L('RemoveBookmarkMessage')),
+            title=UNICODE(REMOVE_BOOKMARK_TITLE),
+            summary=UNICODE(response.get('name') + REMOVE_BOOKMARK_MESSAGE),
             thumb=R(ICON_BOOKMARKS_CLEAR)
         ))
     else:
@@ -473,7 +510,7 @@ def display_season(id, season):
                          thumb=response.get('poster'),
                          summary=UNICODE(filter_non_printable(response.get('description')))),
             title=UNICODE(ADD_BOOKMARK_TITLE),
-            summary=UNICODE(response.get('name') + L('AddBookmarkMessage')),
+            summary=UNICODE(response.get('name') + ADD_BOOKMARK_MESSAGE),
             thumb=R(ICON_ADD_BOOKMARK)
         ))
 
@@ -550,15 +587,15 @@ def MenuBookmarks(title):
             # add a way to clear bookmarks list
             oc.add(DirectoryObject(
                 key=Callback(clear_bookmarks),
-                title=UNICODE(L('BookmarkListClearTitle')),
+                title=UNICODE(BOOKMARK_CLEAR_TITLE),
                 thumb=R(ICON_BOOKMARKS_CLEAR),
-                summary=UNICODE(L('BookmarkListClearMessage'))
+                summary=UNICODE(BOOKMARK_CLEAR_MESSAGE)
             ))
 
             return oc
     return MessageContainer(
-        L('BookmarkList'),
-        L('BookmarkListEmptyMessage')
+        BOOKMARK,
+        BOOKMARK_EMPTY_MESSAGE
     )
 
 
@@ -572,8 +609,8 @@ def add_bookmark(title, id, thumb, summary):
     Dict.Save()
 
     return MessageContainer(
-        L('BookmarkList'),
-        L('BookmarkListAddedMessage')
+        BOOKMARK,
+        BOOKMARK_ADDED_MESSAGE
     )
 
 
@@ -587,8 +624,8 @@ def remove_bookmark(id):
             pass
 
     return MessageContainer(
-        L('BookmarkList'),
-        L('BookmarkListRemovedMessage')
+        BOOKMARK,
+        BOOKMARK_REMOVED_MESSAGE
     )
 
 
@@ -603,8 +640,8 @@ def clear_bookmarks():
         pass
 
     return MessageContainer(
-        L('BookmarkList'),
-        L('BookmarkListClearedMessage')
+        BOOKMARK,
+        BOOKMARK_CLEARED_MESSAGE
     )
 
 
@@ -644,18 +681,18 @@ def is_api_url_set():
 
 def is_response_ok(response):
     if response == "":
-        return [L('EmptyResultTitle'), L('EmptyResultMessage')]
+        return [EMPTY_RESULT_TITLE, EMPTY_RESULT_MESSAGE]
     elif 'error' in response:
         error = response.get('error')
 
         if error == "Authentication::getUser::wrong key":
-            return [L("ErrorTitle"), L('UnauthorizedMessage')]
+            return [ERROR_TITLE, UNAUTHORIZED_MESSAGE]
         elif error == "Authorization::checkRules::this ip is not allowed":
-            return [L("ErrorTitle"), L('IpBlockedMessage')]
+            return [ERROR_TITLE, IP_BLOCKED_MESSAGE]
         elif error == "Authorization::checkRules::user has no premium status":
-            return [L("ErrorTitle"), L('NoPremiumMessage')]
+            return [ERROR_TITLE, NO_PREMIUM_MESSAGE]
         else:
-            return [L("ErrorTitle"), error]
+            return [ERROR_TITLE, error]
 
     return "ok"
 
@@ -665,11 +702,11 @@ def display_message(title, message):
 
 
 def display_missing_api_key_message():
-    return display_message(title=L('MissingAPIKeyTitle'), message=L('MissingAPIKeyMessage'))
+    return display_message(title=MISSING_API_KEY_TITLE, message=MISSING_API_KEY_MESSAGE)
 
 
 def display_missing_api_url_message():
-    return display_message(title=L('MissingAPIKeyTitle'), message=L('MissingAPIKeyMessage'))
+    return display_message(title=MISSING_API_KEY_TITLE, message=MISSING_API_KEY_MESSAGE)
 
 
 def filter_non_printable(s):
