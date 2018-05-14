@@ -6,10 +6,7 @@ Plex media plugin for http://www.seasonvar.ru. Allows you to watch TV shows and 
 __Requires premium subscription__ activated and a valid API key.
 > See configuration section for more info.
 
-Try Premium for free using the following link: http://seasonvar.ru/premDar.php
-> Link may not be working any longer
-
-Current version: 1.8
+Current version: 1.9
 --------------------
 
 Installation

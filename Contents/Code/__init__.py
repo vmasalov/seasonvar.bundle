@@ -325,7 +325,7 @@ def get_season_list_by_title(title):
     values = {
         'key': Prefs["key"],
         'command': 'getSeasonList',
-        'name':UNICODE(title)
+        'name': UNICODE(title)
     }
 
     request = HTTP.Request(Prefs["url"], values=values, cacheTime=CACHE_1DAY)
@@ -398,7 +398,7 @@ def get_season_by_id(id):
 
         # check for missing key index;
         try:
-           key = translations_list.index(translation)
+            translations_list.index(translation)
         except ValueError:
             translations_list.append(translation)
         finally:
@@ -410,7 +410,7 @@ def get_season_by_id(id):
         if key not in translations:
             translations[key] = []
 
-        episode = 0;
+        episode = 0
         try:
             episode = int(video.get('name').split(" ")[0])
         except ValueError:
@@ -418,14 +418,22 @@ def get_season_by_id(id):
             # and provide incorrect values
             episode = 0
 
-        translations[key].append({
-            "name": video.get('name'),
-            "link": video.get('link'),
-            "episode": episode
-        })
+        o = {
+            'name': video.get('name'),
+            'link': video.get('link'),
+            'episode': episode
+        }
 
-        # todo: add subtitles
-        # video.get('subtitles')
+        # Currect version of Plex doesn't support external subtitles
+        # Only local media file may have it.
+
+        # Check if video has subtitles and add it into container
+        if 'subtitles' in video:
+            o['subtitles'] = video.get('subtitles')
+        else:
+            o['subtitles'] = ''
+
+        translations[key].append(o)
 
     # Store current response into global Dict
     Dict['cache'] = {
@@ -479,6 +487,7 @@ def display_season(id, season):
         video_link = video.get('link')
         video_name = video.get('name')
         video_episode = video.get('episode')
+        video_subtitles = video.get('subtitles')
 
         oc.add(create_eo(
             url=video_link,
@@ -488,14 +497,17 @@ def display_season(id, season):
             thumb=response.get('poster_small'),
             index=video_episode,
             season=season,
+            subtitles_url=video_subtitles,
             show=UNICODE(filter_non_printable(title1))
         ))
 
-    if has_bookmark(response.get('id')):
+    # Create a unique key for the bookmark
+    bookmark_label = response.get('id') + "S" + response.get('season')
+    if has_bookmark(bookmark_label):
 
         # show is already in the bookmarks
         oc.add(DirectoryObject(
-            key=Callback(remove_bookmark, id=response.get('id')),
+            key=Callback(remove_bookmark, label=bookmark_label),
             title=UNICODE(REMOVE_BOOKMARK_TITLE),
             summary=UNICODE(response.get('name') + REMOVE_BOOKMARK_MESSAGE),
             thumb=R(ICON_BOOKMARKS_CLEAR)
@@ -505,8 +517,9 @@ def display_season(id, season):
         # show is not in the bookmarks
         oc.add(DirectoryObject(
             key=Callback(add_bookmark, 
-                         title=UNICODE(response.get('name')), 
-                         id=response.get('id'), 
+                         title=UNICODE(response.get('name')) + " " + SEASON_TITLE + response.get('season'),
+                         id=response.get('id'),
+                         label=bookmark_label,
                          thumb=response.get('poster'),
                          summary=UNICODE(filter_non_printable(response.get('description')))),
             title=UNICODE(ADD_BOOKMARK_TITLE),
@@ -517,8 +530,9 @@ def display_season(id, season):
     return oc
 
 
+# subtitles_url is not used, but keep it until it is supported by Plex
 @route(PREFIX + "/create_eo")
-def create_eo(url, title, summary, rating, thumb, index, show, season="1", include_container=False, *unsupported_args):
+def create_eo(url, title, summary, rating, thumb, index, show, subtitles_url, season="1", include_container=False, *unsupported_args):
     eo = EpisodeObject(
         rating_key=url,
         key=Callback(create_eo,
@@ -530,6 +544,7 @@ def create_eo(url, title, summary, rating, thumb, index, show, season="1", inclu
                      index=int(index),
                      season=int(season),
                      show=UNICODE(filter_non_printable(show)),
+                     subtitles_url=subtitles_url,
                      include_container=True),
         title=UNICODE(filter_non_printable(title)),
         summary=UNICODE(filter_non_printable(summary)),
@@ -541,7 +556,7 @@ def create_eo(url, title, summary, rating, thumb, index, show, season="1", inclu
         items=[
             MediaObject(
                 parts=[
-                    PartObject(key=url)
+                    PartObject(key=url, file=url)
                 ],
                 container=Container.MP4,
                 video_codec=VideoCodec.H264,
@@ -569,14 +584,14 @@ def MenuBookmarks(title):
     count = 0
     if 'bookmarks' in Dict:
         oc = ObjectContainer(title1=title)
-        for show_id in Dict['bookmarks']:
+        for show_label in Dict['bookmarks']:
             count += 1
-            show = Dict['bookmarks'][show_id]
+            show = Dict['bookmarks'][show_label]
             show_title = show.get('title')
             oc.add(
                 TVShowObject(
                     rating_key=show_title,
-                    key=Callback(get_season_by_id, id=show_id),
+                    key=Callback(get_season_by_id, id=show.get('id')),
                     title=UNICODE(show_title),
                     summary=UNICODE(show.get('summary')),
                     thumb=Resource.ContentsOfURLWithFallback(url=show.get('thumb'))
@@ -600,12 +615,12 @@ def MenuBookmarks(title):
 
 
 @route(PREFIX + "/addbookmark")
-def add_bookmark(title, id, thumb, summary):
+def add_bookmark(title, id, label, thumb, summary):
     # initiate new dictionary for bookmarks
     if 'bookmarks' not in Dict:
         Dict['bookmarks'] = {}
 
-    Dict['bookmarks'][id] = dict(title=title, thumb=thumb, summary=summary)
+    Dict['bookmarks'][label] = dict(id=id, title=title, thumb=thumb, summary=summary)
     Dict.Save()
 
     return MessageContainer(
@@ -615,10 +630,10 @@ def add_bookmark(title, id, thumb, summary):
 
 
 @route(PREFIX + "/removebookmark")
-def remove_bookmark(id):
-    if has_bookmark(key=id):
+def remove_bookmark(label):
+    if has_bookmark(label):
         try:
-            del Dict['bookmarks'][id]
+            del Dict['bookmarks'][label]
             Dict.Save()
         except KeyError:
             pass
