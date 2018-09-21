@@ -16,5 +16,11 @@
     "label": "Video Resolution",
     "type": "text",
     "default": "1080"
+  },
+  {
+    "id": "show_clear_bookmarks_button",
+    "label": "Show clear bookmarks button",
+    "type": "bool",
+    "default": "true"
   }
 ]
