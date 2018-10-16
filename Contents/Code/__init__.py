@@ -507,7 +507,7 @@ def display_season(id, season):
 
         # show is already in the bookmarks
         # add delete button only if this feature is on
-        if has_clear_bookmarks_button:
+        if has_clear_bookmarks_button():
           oc.add(DirectoryObject(
               key=Callback(remove_bookmark, label=bookmark_label),
               title=UNICODE(REMOVE_BOOKMARK_TITLE),
