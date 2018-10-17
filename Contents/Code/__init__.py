@@ -506,12 +506,14 @@ def display_season(id, season):
     if has_bookmark(bookmark_label):
 
         # show is already in the bookmarks
-        oc.add(DirectoryObject(
-            key=Callback(remove_bookmark, label=bookmark_label),
-            title=UNICODE(REMOVE_BOOKMARK_TITLE),
-            summary=UNICODE(response.get('name') + REMOVE_BOOKMARK_MESSAGE),
-            thumb=R(ICON_BOOKMARKS_CLEAR)
-        ))
+        # add delete button only if this feature is on
+        if has_clear_bookmarks_button():
+          oc.add(DirectoryObject(
+              key=Callback(remove_bookmark, label=bookmark_label),
+              title=UNICODE(REMOVE_BOOKMARK_TITLE),
+              summary=UNICODE(response.get('name') + REMOVE_BOOKMARK_MESSAGE),
+              thumb=R(ICON_BOOKMARKS_CLEAR)
+          ))
     else:
 
         # show is not in the bookmarks
@@ -710,6 +712,9 @@ def is_response_ok(response):
             return [ERROR_TITLE, error]
 
     return "ok"
+
+def has_clear_bookmarks_button():
+    return Prefs["show_clear_bookmarks_button"]
 
 
 def display_message(title, message):
